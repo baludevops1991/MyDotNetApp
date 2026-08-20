@@ -43,3 +43,12 @@ steps:
   inputs:
     pathToPublish: '$(Build.ArtifactStagingDirectory)/publish'
     artifactName: 'drop'
+
+# Deploy to Azure App Service
+- task: AzureWebApp@1
+  displayName: 'Deploy to Azure App Service'
+  inputs:
+    azureSubscription: 'Azure-Production-DotNetApp'
+    appType: 'webAppLinux'
+    appName: 'baludotnetapp'
+    package: '$(Build.ArtifactStagingDirectory)/publish/*.zip'
