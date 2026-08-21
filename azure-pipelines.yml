@@ -1,68 +1,135 @@
-# Trigger the pipeline whenever code is pushed to the main branch
+# ============================================================
+# Trigger
+# ============================================================
+
+# Trigger the pipeline whenever code is pushed to main
 trigger:
 - main
 
-# Use a Microsoft-hosted Ubuntu agent to run the pipeline
+
+# ============================================================
+# Build Agent
+# ============================================================
+
+# Use a Microsoft-hosted Ubuntu agent
 pool:
   vmImage: ubuntu-latest
 
-# Define reusable variables for Docker and Azure resources
+
+# ============================================================
+# Variables
+# ============================================================
+
 variables:
 
-  # Name of the Docker image/repository inside ACR
-  imageRepository: 'mydotnetapp'
+  # ----------------------------------------------------------
+  # Application
+  # ----------------------------------------------------------
 
-  # Azure DevOps service connection used to authenticate with ACR
+  # Azure App Service name
+  appName: 'baludotnetapp'
+
+  # Azure Resource Group
+  resourceGroup: 'rg-dotnet-app'
+
+
+  # ----------------------------------------------------------
+  # Azure Service Connections
+  # ----------------------------------------------------------
+
+  # Service connection used by Docker@2 to push images to ACR
   dockerRegistryServiceConnection: 'ACR-Production-DotNetApp'
 
-  # Azure Container Registry URL
+  # Service connection used to deploy to Azure App Service
+  azureSubscription: 'Azure-Production-DotNetApp'
+
+
+  # ----------------------------------------------------------
+  # Azure Container Registry
+  # ----------------------------------------------------------
+
+  # ACR login server
   containerRegistry: 'baludotnetacr.azurecr.io'
 
-  # Location of the Dockerfile in the source repository
+  # Docker repository/image name inside ACR
+  imageRepository: 'mydotnetapp'
+
+
+  # ----------------------------------------------------------
+  # Docker
+  # ----------------------------------------------------------
+
+  # Location of the Dockerfile
   dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
 
-  # Use the Azure DevOps build ID as the Docker image tag
+  # Azure DevOps Build ID used as the image version
   imageTag: '$(Build.BuildId)'
+
+  # Container port
+  containerPort: '8080'
+
+
+  # ----------------------------------------------------------
+  # Docker Image
+  # ----------------------------------------------------------
+
+  # Complete image name
+  imageName: '$(containerRegistry)/$(imageRepository)'
+
+  # Complete versioned image
+  imageVersion: '$(imageName):$(imageTag)'
+
+  # Latest image
+  imageLatest: '$(imageName):latest'
+
+
+# ============================================================
+# Steps
+# ============================================================
 
 steps:
 
-# ============================================================
-# STEP 1: Build Docker image and push it to Azure Container Registry
-# ============================================================
-- task: Docker@2
-  displayName: 'Build and push Docker image to ACR'
-  inputs:
+  # ==========================================================
+  # STEP 1 — Build and Push Docker Image to ACR
+  # ==========================================================
 
-    # Build the Docker image and push it to the registry
-    command: 'buildAndPush'
+  - task: Docker@2
+    displayName: 'Build and push Docker image to ACR'
 
-    # Docker repository/image name
-    repository: '$(imageRepository)'
+    inputs:
 
-    # Location of the Dockerfile
-    dockerfile: '$(dockerfilePath)'
+      # Build the Docker image and push it to ACR
+      command: 'buildAndPush'
 
-    # Service connection used to authenticate with ACR
-    containerRegistry: '$(dockerRegistryServiceConnection)'
+      # Docker repository name
+      repository: '$(imageRepository)'
 
-    # Create two tags for the image
-    tags: |
-      $(imageTag)
-      latest
+      # Dockerfile location
+      dockerfile: '$(dockerfilePath)'
+
+      # ACR service connection
+      containerRegistry: '$(dockerRegistryServiceConnection)'
+
+      # Create version and latest tags
+      tags: |
+        $(imageTag)
+        latest
 
 
-# ============================================================
-# STEP 2: Deploy the Docker image to Azure App Service
-# ============================================================
-- task: AzureWebAppContainer@1
-  displayName: 'Deploy Docker container to Azure App Service'
-  inputs:
+  # ==========================================================
+  # STEP 2 — Deploy Docker Image to Azure App Service
+  # ==========================================================
 
-    # Azure DevOps service connection used to access Azure
-    azureSubscription: 'Azure-Production-DotNetApp'
+  - task: AzureWebAppContainer@1
+    displayName: 'Deploy Docker container to Azure App Service'
 
-    # Target Azure App Service
-    appName: 'baludotnetapp'
+    inputs:
 
-    # Full Docker image name that App Service will run
-    containers: '$(containerRegistry)/$(imageRepository):$(imageTag)'
+      # Azure service connection
+      azureSubscription: '$(azureSubscription)'
+
+      # Target App Service
+      appName: '$(appName)'
+
+      # Docker image to deploy
+      containers: '$(imageVersion)'
