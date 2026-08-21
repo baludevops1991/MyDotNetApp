@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>My .NET App | Azure App Service</title>
+    <title>My .NET App | Azure DevOps CI/CD</title>
 
     <style>
         * {
@@ -39,32 +39,31 @@
 
         .badge {
             background: #2563eb;
-            padding: 7px 14px;
+            padding: 8px 15px;
             border-radius: 20px;
             font-size: 13px;
         }
 
         .hero {
-            min-height: 70vh;
             display: flex;
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 40px 20px;
+            padding: 55px 20px 30px;
         }
 
         .card {
             background: white;
-            max-width: 750px;
+            max-width: 950px;
             width: 100%;
-            padding: 55px 45px;
-            border-radius: 18px;
+            padding: 50px 45px;
+            border-radius: 20px;
             box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
         }
 
         .icon {
             font-size: 55px;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
         h1 {
@@ -74,60 +73,115 @@
         }
 
         .subtitle {
-            font-size: 19px;
+            font-size: 18px;
             color: #6b7280;
-            line-height: 1.6;
-            margin-bottom: 30px;
+            line-height: 1.7;
+            margin-bottom: 25px;
         }
 
         .status {
             display: inline-block;
             background: #dcfce7;
             color: #166534;
-            padding: 10px 18px;
+            padding: 10px 20px;
             border-radius: 25px;
             font-weight: bold;
-            margin-bottom: 35px;
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 25px;
+            color: #111827;
+            margin: 35px 0 20px;
         }
 
         .info {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
+            gap: 16px;
             margin-top: 20px;
         }
 
         .info-box {
             background: #f9fafb;
-            padding: 18px 10px;
-            border-radius: 12px;
+            padding: 20px 15px;
+            border-radius: 14px;
+            border: 1px solid #e5e7eb;
         }
 
         .info-box strong {
             display: block;
             color: #2563eb;
-            margin-bottom: 5px;
+            margin-bottom: 7px;
+            font-size: 16px;
         }
 
         .info-box span {
             font-size: 14px;
             color: #6b7280;
+            line-height: 1.5;
+        }
+
+        .architecture {
+            margin-top: 25px;
+            background: #111827;
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: left;
+            overflow-x: auto;
+        }
+
+        .architecture pre {
+            font-family: Consolas, monospace;
+            font-size: 14px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+
+        .achievements {
+            text-align: left;
+            margin-top: 25px;
+        }
+
+        .achievement {
+            background: #f9fafb;
+            border-left: 5px solid #2563eb;
+            padding: 15px 18px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+        }
+
+        .achievement strong {
+            color: #111827;
+        }
+
+        .technology {
+            display: inline-block;
+            background: #eff6ff;
+            color: #1d4ed8;
+            padding: 7px 12px;
+            border-radius: 20px;
+            margin: 5px;
+            font-size: 13px;
+            font-weight: bold;
         }
 
         footer {
             text-align: center;
-            padding: 20px;
+            padding: 25px;
             color: #6b7280;
             font-size: 14px;
         }
 
-        @@media (max-width: 600px) {
+        @@media (max-width: 700px) {
+
             h1 {
                 font-size: 32px;
             }
 
             .card {
-                padding: 40px 20px;
+                padding: 35px 20px;
             }
 
             .info {
@@ -137,18 +191,26 @@
             .navbar {
                 padding: 16px 5%;
             }
+
+            .architecture pre {
+                font-size: 12px;
+            }
         }
     </style>
 </head>
 
 <body>
 
+    <!-- Navigation -->
     <nav class="navbar">
         <div class="logo">My .NET App</div>
-        <div class="badge">Azure App Service</div>
+        <div class="badge">Azure DevOps CI/CD</div>
     </nav>
 
+
+    <!-- Main Hero -->
     <main class="hero">
+
         <div class="card">
 
             <div class="icon">☁️</div>
@@ -156,15 +218,20 @@
             <h1>Hello from Azure!</h1>
 
             <p class="subtitle">
-                This ASP.NET Core application is running on
-                <strong>Azure App Service</strong> and deployed automatically
-                using <strong>Azure DevOps CI/CD</strong> with Docker and
-                Azure Container Registry.
+                This ASP.NET Core application is running as a Docker container
+                on <strong>Azure App Service</strong> and is deployed using
+                an automated <strong>Azure DevOps CI/CD pipeline</strong>.
             </p>
 
             <div class="status">
-                ✓ Application is running
+                ✓ Application is Running
             </div>
+
+
+            <!-- Current Environment -->
+            <h2 class="section-title">
+                Current Environment
+            </h2>
 
             <div class="info">
 
@@ -175,21 +242,235 @@
 
                 <div class="info-box">
                     <strong>.NET 10</strong>
-                    <span>Runtime</span>
+                    <span>Application Runtime</span>
                 </div>
 
                 <div class="info-box">
-                    <strong>Azure DevOps</strong>
-                    <span>CI/CD Pipeline</span>
+                    <strong>Docker</strong>
+                    <span>Containerized Application</span>
+                </div>
+
+                <div class="info-box">
+                    <strong>Azure App Service</strong>
+                    <span>Application Hosting</span>
+                </div>
+
+                <div class="info-box">
+                    <strong>Port 8080</strong>
+                    <span>Container Application Port</span>
+                </div>
+
+                <div class="info-box">
+                    <strong>Production</strong>
+                    <span>Azure Environment</span>
                 </div>
 
             </div>
 
+
+            <!-- Technologies -->
+            <h2 class="section-title">
+                Technologies Used
+            </h2>
+
+            <div>
+
+                <span class="technology">.NET 10</span>
+                <span class="technology">ASP.NET Core</span>
+                <span class="technology">Docker</span>
+                <span class="technology">Azure DevOps</span>
+                <span class="technology">Azure Container Registry</span>
+                <span class="technology">Azure App Service</span>
+                <span class="technology">Managed Identity</span>
+                <span class="technology">AcrPull</span>
+                <span class="technology">Self-Hosted Agent</span>
+                <span class="technology">GitHub</span>
+
+            </div>
+
+
+            <!-- CI/CD Architecture -->
+            <h2 class="section-title">
+                CI/CD Architecture
+            </h2>
+
+            <div class="architecture">
+
+<pre>
+Developer
+    │
+    │ git push
+    ▼
+GitHub Repository
+    │
+    │ main branch
+    ▼
+Azure DevOps Pipeline
+    │
+    ▼
+Self-Hosted Agent
+azdo-agent-vm
+    │
+    │ Docker build
+    ▼
+Docker Image
+mydotnetapp:&lt;BuildId&gt;
+    │
+    │ Docker push
+    ▼
+Azure Container Registry
+baludotnetacr.azurecr.io
+    │
+    │ AcrPull
+    │ Managed Identity
+    ▼
+Azure App Service
+baludotnetapp
+    │
+    │ Pull Docker Image
+    ▼
+Docker Container
+    │
+    │ :8080
+    ▼
+ASP.NET Core Application
+</pre>
+
+            </div>
+
+
+            <!-- Learning / Achievements -->
+            <h2 class="section-title">
+                Azure & DevOps Work Completed
+            </h2>
+
+            <div class="achievements">
+
+                <div class="achievement">
+                    <strong>✓ Azure Virtual Machine</strong><br />
+                    Created an Azure VM, configured NGINX and deployed
+                    a Node.js application on port 3000.
+                </div>
+
+                <div class="achievement">
+                    <strong>✓ Azure App Service</strong><br />
+                    Created an Azure App Service and deployed an ASP.NET Core
+                    application using Azure deployment methods.
+                </div>
+
+                <div class="achievement">
+                    <strong>✓ GitHub Integration</strong><br />
+                    Connected the application source code with GitHub
+                    and worked with automated deployment.
+                </div>
+
+                <div class="achievement">
+                    <strong>✓ Azure DevOps CI/CD</strong><br />
+                    Created an Azure DevOps YAML pipeline to automate
+                    application build and deployment.
+                </div>
+
+                <div class="achievement">
+                    <strong>✓ Docker Multi-Stage Build</strong><br />
+                    Created a Dockerfile using the .NET SDK build image
+                    and ASP.NET runtime image.
+                </div>
+
+                <div class="achievement">
+                    <strong>✓ Azure Container Registry</strong><br />
+                    Created
+                    <strong>baludotnetacr.azurecr.io</strong>
+                    and pushed the Docker image to the
+                    <strong>mydotnetapp</strong> repository.
+                </div>
+
+                <div class="achievement">
+                    <strong>✓ Docker Image Versioning</strong><br />
+                    Docker images are tagged using the Azure DevOps
+                    Build ID, for example <strong>mydotnetapp:235</strong>,
+                    along with the <strong>latest</strong> tag.
+                </div>
+
+                <div class="achievement">
+                    <strong>✓ Managed Identity</strong><br />
+                    Configured the App Service to authenticate with ACR
+                    using its Managed Identity.
+                </div>
+
+                <div class="achievement">
+                    <strong>✓ AcrPull Permission</strong><br />
+                    Assigned the <strong>AcrPull</strong> role to the
+                    App Service Managed Identity so it can pull images
+                    from Azure Container Registry.
+                </div>
+
+                <div class="achievement">
+                    <strong>✓ Self-Hosted Azure DevOps Agent</strong><br />
+                    Created an Azure VM named
+                    <strong>azdo-agent-vm</strong> and configured it as
+                    a self-hosted Azure DevOps agent.
+                </div>
+
+                <div class="achievement">
+                    <strong>✓ Self-Hosted Agent Pool</strong><br />
+                    Configured the
+                    <strong>Azure-DevOps-SelfHosted</strong> agent pool
+                    and connected the VM successfully.
+                </div>
+
+                <div class="achievement">
+                    <strong>✓ Automated Container Deployment</strong><br />
+                    Azure DevOps builds the Docker image, pushes it to ACR,
+                    and deploys the selected image to Azure App Service.
+                </div>
+
+            </div>
+
+
+            <!-- Deployment Flow -->
+            <h2 class="section-title">
+                Deployment Flow
+            </h2>
+
+            <div class="architecture">
+
+<pre>
+1. Developer changes application code
+        ↓
+2. git add / git commit / git push
+        ↓
+3. Code reaches GitHub main branch
+        ↓
+4. Azure DevOps pipeline is triggered
+        ↓
+5. Self-hosted agent receives the job
+        ↓
+6. Docker builds the application image
+        ↓
+7. Docker pushes image to ACR
+        ↓
+8. App Service receives the new image configuration
+        ↓
+9. App Service Managed Identity authenticates to ACR
+        ↓
+10. AcrPull permission allows image download
+        ↓
+11. App Service pulls the Docker image
+        ↓
+12. Container starts on port 8080
+        ↓
+13. ASP.NET Core application becomes available
+</pre>
+
+            </div>
+
         </div>
+
     </main>
 
+
     <footer>
-        © 2026 My .NET App · Docker · ACR · Azure App Service
+        © 2026 My .NET App · Azure DevOps · Docker · ACR · Azure App Service
     </footer>
 
 </body>
