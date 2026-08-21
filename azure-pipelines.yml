@@ -1,54 +1,68 @@
+# Trigger the pipeline whenever code is pushed to the main branch
 trigger:
 - main
 
+# Use a Microsoft-hosted Ubuntu agent to run the pipeline
 pool:
   vmImage: ubuntu-latest
 
+# Define reusable variables for Docker and Azure resources
+variables:
+
+  # Name of the Docker image/repository inside ACR
+  imageRepository: 'mydotnetapp'
+
+  # Azure DevOps service connection used to authenticate with ACR
+  dockerRegistryServiceConnection: 'ACR-Production-DotNetApp'
+
+  # Azure Container Registry URL
+  containerRegistry: 'baludotnetacr.azurecr.io'
+
+  # Location of the Dockerfile in the source repository
+  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
+
+  # Use the Azure DevOps build ID as the Docker image tag
+  imageTag: '$(Build.BuildId)'
+
 steps:
 
-# Install .NET 10
-- task: UseDotNet@2
-  displayName: 'Install .NET 10'
+# ============================================================
+# STEP 1: Build Docker image and push it to Azure Container Registry
+# ============================================================
+- task: Docker@2
+  displayName: 'Build and push Docker image to ACR'
   inputs:
-    packageType: 'sdk'
-    version: '10.x'
 
-# Restore NuGet packages
-- task: DotNetCoreCLI@2
-  displayName: 'Restore NuGet packages'
-  inputs:
-    command: 'restore'
-    projects: '**/*.csproj'
+    # Build the Docker image and push it to the registry
+    command: 'buildAndPush'
 
-# Build the application
-- task: DotNetCoreCLI@2
-  displayName: 'Build ASP.NET Core application'
-  inputs:
-    command: 'build'
-    projects: '**/*.csproj'
-    arguments: '--configuration Release --no-restore'
+    # Docker repository/image name
+    repository: '$(imageRepository)'
 
-# Publish the application
-- task: DotNetCoreCLI@2
-  displayName: 'Publish ASP.NET Core application'
-  inputs:
-    command: 'publish'
-    projects: '**/*.csproj'
-    arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)/publish --no-build'
-    zipAfterPublish: true
+    # Location of the Dockerfile
+    dockerfile: '$(dockerfilePath)'
 
-# Publish the build artifact
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish application artifact'
-  inputs:
-    pathToPublish: '$(Build.ArtifactStagingDirectory)/publish'
-    artifactName: 'drop'
+    # Service connection used to authenticate with ACR
+    containerRegistry: '$(dockerRegistryServiceConnection)'
 
-# Deploy to Azure App Service
-- task: AzureWebApp@1
-  displayName: 'Deploy to Azure App Service'
+    # Create two tags for the image
+    tags: |
+      $(imageTag)
+      latest
+
+
+# ============================================================
+# STEP 2: Deploy the Docker image to Azure App Service
+# ============================================================
+- task: AzureWebAppContainer@1
+  displayName: 'Deploy Docker container to Azure App Service'
   inputs:
+
+    # Azure DevOps service connection used to access Azure
     azureSubscription: 'Azure-Production-DotNetApp'
-    appType: 'webAppLinux'
+
+    # Target Azure App Service
     appName: 'baludotnetapp'
-    package: '$(Build.ArtifactStagingDirectory)/publish/*.zip'
+
+    # Full Docker image name that App Service will run
+    containers: '$(containerRegistry)/$(imageRepository):$(imageTag)'
