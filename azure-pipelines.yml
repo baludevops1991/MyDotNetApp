@@ -13,7 +13,7 @@ trigger:
 
 # Use a Microsoft-hosted Ubuntu agent
 pool:
-  vmImage: ubuntu-latest
+  name: Azure-DevOps-SelfHosted
 
 
 # ============================================================
