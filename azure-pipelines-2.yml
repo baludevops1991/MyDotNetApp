@@ -1,0 +1,245 @@
+trigger:
+- main
+
+
+# ==================================================
+# VARIABLES
+# ==================================================
+
+variables:
+
+  # .NET version
+  DOTNET_VERSION: '10.x'
+
+  # Build configuration
+  BUILD_CONFIGURATION: 'Release'
+
+  # Project file
+  PROJECTS: '**/*.csproj'
+
+  # Artifact
+  ARTIFACT_NAME: 'drop'
+
+  # Application settings
+  APP_DIR: '/var/www/MyDotNetApp'
+
+  # Systemd service
+  SERVICE_NAME: 'mydotnetapp'
+
+  # Linux VM user
+  APP_USER: 'azureuser'
+
+  # Environment
+  ENVIRONMENT_NAME: 'MyDotNetApp-VMs'
+
+
+# ==================================================
+# BUILD STAGE
+# ==================================================
+
+stages:
+
+- stage: Build
+  displayName: Build Application
+
+  jobs:
+
+  - job: Build
+    displayName: Build ASP.NET Core Application
+
+    pool:
+      vmImage: ubuntu-latest
+
+    steps:
+
+    # Install .NET SDK
+    - task: UseDotNet@2
+      displayName: Install .NET SDK
+      inputs:
+        packageType: sdk
+        version: '$(DOTNET_VERSION)'
+
+
+    # Restore
+    - task: DotNetCoreCLI@2
+      displayName: Restore
+      inputs:
+        command: restore
+        projects: '$(PROJECTS)'
+
+
+    # Build
+    - task: DotNetCoreCLI@2
+      displayName: Build
+      inputs:
+        command: build
+        projects: '$(PROJECTS)'
+        arguments: '--configuration $(BUILD_CONFIGURATION) --no-restore'
+
+
+    # Publish
+    - task: DotNetCoreCLI@2
+      displayName: Publish
+      inputs:
+        command: publish
+        projects: '$(PROJECTS)'
+        arguments: '--configuration $(BUILD_CONFIGURATION) --output $(Build.ArtifactStagingDirectory)/publish'
+        publishWebProjects: false
+
+
+    # Publish artifact
+    - publish: $(Build.ArtifactStagingDirectory)/publish
+      artifact: $(ARTIFACT_NAME)
+
+
+# ==================================================
+# DEPLOY STAGE
+# ==================================================
+
+- stage: Deploy
+  displayName: Deploy to VMs
+
+  dependsOn: Build
+
+  condition: succeeded()
+
+  jobs:
+
+  - deployment: DeployToVMs
+    displayName: Deploy ASP.NET Core to VMs
+
+    environment:
+      name: $(ENVIRONMENT_NAME)
+      resourceType: virtualMachine
+
+    strategy:
+
+      runOnce:
+
+        deploy:
+
+          steps:
+
+          # Download build artifact
+          - download: current
+            artifact: $(ARTIFACT_NAME)
+
+
+          # Deploy application
+          - bash: |
+
+              set -e
+
+              echo "===================================="
+              echo " ASP.NET Core Deployment"
+              echo "===================================="
+
+              APP_DIR="$(APP_DIR)"
+              ARTIFACT_DIR="$(Pipeline.Workspace)/$(ARTIFACT_NAME)"
+              SERVICE_NAME="$(SERVICE_NAME)"
+              APP_USER="$(APP_USER)"
+
+              echo "Artifact:"
+              echo "$ARTIFACT_DIR"
+
+              echo "Application:"
+              echo "$APP_DIR"
+
+              echo "Service:"
+              echo "$SERVICE_NAME"
+
+
+              # ------------------------------------
+              # Create application directory
+              # ------------------------------------
+
+              echo "Creating application directory..."
+
+              sudo mkdir -p "$APP_DIR"
+
+
+              # ------------------------------------
+              # Stop application
+              # ------------------------------------
+
+              echo "Stopping $SERVICE_NAME..."
+
+              sudo systemctl stop "$SERVICE_NAME" || true
+
+
+              # ------------------------------------
+              # Clean old application
+              # ------------------------------------
+
+              echo "Removing old files..."
+
+              sudo rm -rf "$APP_DIR"/*
+
+
+              # ------------------------------------
+              # Copy new application
+              # ------------------------------------
+
+              echo "Copying new files..."
+
+              sudo cp -r "$ARTIFACT_DIR"/* "$APP_DIR"/
+
+
+              # ------------------------------------
+              # Set ownership
+              # ------------------------------------
+
+              echo "Setting ownership..."
+
+              sudo chown -R "$APP_USER:$APP_USER" "$APP_DIR"
+
+
+              # ------------------------------------
+              # Start application
+              # ------------------------------------
+
+              echo "Starting $SERVICE_NAME..."
+
+              sudo systemctl restart "$SERVICE_NAME"
+
+
+              # ------------------------------------
+              # Wait for application
+              # ------------------------------------
+
+              sleep 5
+
+
+              # ------------------------------------
+              # Verify application
+              # ------------------------------------
+
+              echo "Checking application..."
+
+              if sudo systemctl is-active --quiet "$SERVICE_NAME"
+              then
+
+                  echo "===================================="
+                  echo " Deployment Successful"
+                  echo "===================================="
+
+              else
+
+                  echo "===================================="
+                  echo " Deployment Failed"
+                  echo "===================================="
+
+                  echo "Service Status:"
+                  sudo systemctl status "$SERVICE_NAME" --no-pager
+
+                  echo "Application Logs:"
+                  sudo journalctl \
+                    -u "$SERVICE_NAME" \
+                    -n 50 \
+                    --no-pager
+
+                  exit 1
+
+              fi
+
+            displayName: Deploy ASP.NET Core Application
