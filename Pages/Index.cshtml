@@ -12,7 +12,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>My .NET App | Azure DevOps Deployment Group</title>
+    <title>My .NET App | Azure DevOps YAML CI/CD</title>
 
     <style>
         * {
@@ -237,8 +237,9 @@
     <!-- Navigation -->
     <nav class="navbar">
         <div class="logo">My .NET App</div>
-        <div class="badge">Azure DevOps CI/CD</div>
+        <div class="badge">Azure DevOps YAML CI/CD</div>
     </nav>
+
 
     <!-- Main Hero -->
     <main class="hero">
@@ -250,25 +251,38 @@
             <h1>Hello from Azure DevOps!</h1>
 
             <p class="subtitle">
-                This ASP.NET Core application has been deployed to Azure Virtual Machines
-                using an automated <strong>Azure DevOps Deployment Group</strong>.
+                This ASP.NET Core application is deployed to Azure Virtual Machines
+                using a modern <strong>Azure DevOps YAML multi-stage pipeline</strong>
+                with <strong>Environments</strong> and
+                <strong>deployment jobs</strong>.
             </p>
 
             <div class="status">
-                ✓ Deployment Group Deployment Successful
+                ✓ YAML CI/CD Deployment Successful
             </div>
 
             <div class="version">
-                Deployment Test: Release-6 | VM Deployment
+                Multi-Stage Pipeline | Build + Deploy
             </div>
+
 
             <!-- Current Server -->
+
             <div class="server-highlight">
-                <span class="label">Application served by</span>
-                <span class="server-name">@serverName</span>
+
+                <span class="label">
+                    Application served by
+                </span>
+
+                <span class="server-name">
+                    @serverName
+                </span>
+
             </div>
 
+
             <!-- Current Environment -->
+
             <h2 class="section-title">
                 Current Environment
             </h2>
@@ -301,8 +315,18 @@
                 </div>
 
                 <div class="info-box">
-                    <strong>Deployment Group</strong>
-                    <span>DotNetApp-VMs</span>
+                    <strong>Environment</strong>
+                    <span>MyDotNetApp-VMs</span>
+                </div>
+
+                <div class="info-box">
+                    <strong>Deployment Job</strong>
+                    <span>DeployToVMs</span>
+                </div>
+
+                <div class="info-box">
+                    <strong>Deployment Strategy</strong>
+                    <span>runOnce</span>
                 </div>
 
                 <div class="info-box">
@@ -312,7 +336,9 @@
 
             </div>
 
+
             <!-- Technologies -->
+
             <h2 class="section-title">
                 Technologies Used
             </h2>
@@ -323,7 +349,10 @@
                 <span class="technology">ASP.NET Core</span>
                 <span class="technology">Azure DevOps</span>
                 <span class="technology">GitHub</span>
-                <span class="technology">Deployment Groups</span>
+                <span class="technology">YAML</span>
+                <span class="technology">Multi-Stage Pipeline</span>
+                <span class="technology">Environment</span>
+                <span class="technology">Deployment Job</span>
                 <span class="technology">Azure VM</span>
                 <span class="technology">Linux</span>
                 <span class="technology">systemd</span>
@@ -332,7 +361,9 @@
 
             </div>
 
+
             <!-- CI/CD Architecture -->
+
             <h2 class="section-title">
                 CI/CD Architecture
             </h2>
@@ -348,40 +379,54 @@ GitHub Repository
     │
     │ main branch
     ▼
-Azure DevOps Build Pipeline
+Azure DevOps YAML Pipeline
     │
-    │ Restore
-    │ Build
-    │ Publish
-    ▼
-Build Artifact
-    │
-    ▼
-Azure DevOps Release Pipeline
-    │
-    ▼
-Deployment Group
-DotNetApp-VMs
-    │
-    ├──────────────────────────┐
-    ▼                          ▼
-deployment-vm-01          deployment-vm-02
-    │                          │
-    │ systemd                 │ systemd
-    ▼                          ▼
-ASP.NET Core              ASP.NET Core
-    │                          │
-    ▼                          ▼
-Port 5000                 Port 5000
-    │                          │
-    └────────────┬─────────────┘
-                 ▼
-          Application Response
+    ├─────────────────────────────┐
+    │                             │
+    ▼                             │
+Build Stage                       │
+    │                             │
+    ├── Install .NET 10 SDK       │
+    ├── Restore                   │
+    ├── Build                     │
+    ├── Publish                   │
+    └── Create Artifact           │
+              │                   │
+              ▼                   │
+        MyDotNetApp Artifact      │
+              │                   │
+              ▼                   │
+        Deploy Stage              │
+              │                   │
+              ▼                   │
+       Deployment Job             │
+       DeployToVMs                │
+              │                   │
+              ▼                   │
+      Environment                 │
+      MyDotNetApp-VMs             │
+              │                   │
+        ┌─────┴─────┐             │
+        ▼           ▼             │
+deployment-vm-01  deployment-vm-02
+        │           │
+        │ systemd  │ systemd
+        ▼           ▼
+   ASP.NET Core  ASP.NET Core
+        │           │
+        ▼           ▼
+     Port 5000   Port 5000
+        │           │
+        └─────┬─────┘
+              ▼
+       Application Response
 </pre>
 
             </div>
 
-            <!-- Learning / Achievements -->
+
+            <!-- Work Completed -->
+
             <h2 class="section-title">
                 Azure & DevOps Work Completed
             </h2>
@@ -403,26 +448,33 @@ Port 5000                 Port 5000
                 <div class="achievement">
                     <strong>✓ GitHub Integration</strong><br />
                     Connected the application source code with GitHub and
-                    configured the Azure DevOps build process.
+                    configured Azure DevOps CI/CD.
                 </div>
 
                 <div class="achievement">
-                    <strong>✓ Azure DevOps Build Pipeline</strong><br />
-                    Created a build pipeline to restore, build and publish
-                    the ASP.NET Core application as an artifact.
+                    <strong>✓ YAML Build Stage</strong><br />
+                    Created a YAML Build stage to install the .NET 10 SDK,
+                    restore dependencies, build and publish the ASP.NET Core
+                    application.
                 </div>
 
                 <div class="achievement">
-                    <strong>✓ Deployment Group</strong><br />
-                    Created the <strong>DotNetApp-VMs</strong> deployment group
-                    and registered two Linux VM deployment targets.
+                    <strong>✓ Build Artifact</strong><br />
+                    Published the application as a pipeline artifact named
+                    <strong>MyDotNetApp</strong>.
                 </div>
 
                 <div class="achievement">
-                    <strong>✓ Deployment Group Agents</strong><br />
-                    Configured Azure DevOps deployment agents on
-                    <strong>deployment-vm-01</strong> and
-                    <strong>deployment-vm-02</strong>.
+                    <strong>✓ Azure DevOps Environment</strong><br />
+                    Created the <strong>MyDotNetApp-VMs</strong> Environment
+                    for managing the VM deployment targets.
+                </div>
+
+                <div class="achievement">
+                    <strong>✓ Environment VM Resources</strong><br />
+                    Registered <strong>deployment-vm-01</strong> and
+                    <strong>deployment-vm-02</strong> as virtual machine
+                    resources in the Environment.
                 </div>
 
                 <div class="achievement">
@@ -438,16 +490,16 @@ Port 5000                 Port 5000
                 </div>
 
                 <div class="achievement">
-                    <strong>✓ Classic Release Pipeline</strong><br />
-                    Created a Release pipeline to download the build artifact
-                    and deploy the application to both deployment VMs.
+                    <strong>✓ YAML Deploy Stage</strong><br />
+                    Created a deployment stage using an Azure DevOps
+                    <strong>deployment job</strong>.
                 </div>
 
                 <div class="achievement">
                     <strong>✓ Automated VM Deployment</strong><br />
-                    Azure DevOps deploys the published application files,
-                    restarts the systemd service and runs the application
-                    on port 5000.
+                    The deployment job downloads the application artifact,
+                    extracts the package, copies the application files,
+                    restarts the systemd service and verifies the application.
                 </div>
 
                 <div class="achievement">
@@ -458,7 +510,9 @@ Port 5000                 Port 5000
 
             </div>
 
+
             <!-- Deployment Flow -->
+
             <h2 class="section-title">
                 Deployment Flow
             </h2>
@@ -472,27 +526,37 @@ Port 5000                 Port 5000
         ↓
 3. Code reaches GitHub main branch
         ↓
-4. Azure DevOps Build Pipeline is triggered
+4. Azure DevOps YAML Pipeline is triggered
         ↓
-5. Application is restored and built
+5. Build Stage starts
         ↓
-6. Application is published
+6. .NET 10 SDK is installed
         ↓
-7. Build artifact is created
+7. Application is restored
         ↓
-8. Release Pipeline receives the artifact
+8. Application is built
         ↓
-9. Deployment Group targets both Azure VMs
+9. Application is published
         ↓
-10. Artifact is copied to /var/www/MyDotNetApp
+10. MyDotNetApp artifact is created
         ↓
-11. systemd service is restarted
+11. Deploy Stage starts
         ↓
-12. ASP.NET Core application starts
+12. Deployment Job targets MyDotNetApp-VMs
         ↓
-13. Application becomes available on port 5000
+13. Artifact is downloaded to the VM
         ↓
-14. Browser displays the VM hostname
+14. Application package is extracted
+        ↓
+15. Application is copied to /var/www/MyDotNetApp
+        ↓
+16. systemd service is restarted
+        ↓
+17. ASP.NET Core application starts
+        ↓
+18. Application becomes available on port 5000
+        ↓
+19. Browser displays the VM hostname
 </pre>
 
             </div>
@@ -501,8 +565,9 @@ Port 5000                 Port 5000
 
     </main>
 
+
     <footer>
-        © 2026 My .NET App · Azure DevOps · Deployment Groups · Azure VMs
+        © 2026 My .NET App · Azure DevOps · YAML Multi-Stage Pipeline · Azure VMs
     </footer>
 
 </body>
