@@ -43,5 +43,5 @@ steps:
   displayName: 'Publish Artifact'
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)/app'
-    ArtifactName: 'drop'
+    ArtifactName: 'MyDotNetApp'
     publishLocation: 'Container'
