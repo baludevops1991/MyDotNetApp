@@ -52,7 +52,10 @@ stages:
 
     steps:
 
+    # ----------------------------------------------
     # Install .NET SDK
+    # ----------------------------------------------
+
     - task: UseDotNet@2
       displayName: Install .NET SDK
       inputs:
@@ -60,7 +63,10 @@ stages:
         version: '$(DOTNET_VERSION)'
 
 
+    # ----------------------------------------------
     # Restore
+    # ----------------------------------------------
+
     - task: DotNetCoreCLI@2
       displayName: Restore
       inputs:
@@ -68,7 +74,10 @@ stages:
         projects: '$(PROJECTS)'
 
 
+    # ----------------------------------------------
     # Build
+    # ----------------------------------------------
+
     - task: DotNetCoreCLI@2
       displayName: Build
       inputs:
@@ -77,7 +86,10 @@ stages:
         arguments: '--configuration $(BUILD_CONFIGURATION) --no-restore'
 
 
+    # ----------------------------------------------
     # Publish
+    # ----------------------------------------------
+
     - task: DotNetCoreCLI@2
       displayName: Publish
       inputs:
@@ -87,7 +99,10 @@ stages:
         publishWebProjects: false
 
 
+    # ----------------------------------------------
     # Publish artifact
+    # ----------------------------------------------
+
     - publish: $(Build.ArtifactStagingDirectory)/publish
       artifact: $(ARTIFACT_NAME)
 
@@ -120,12 +135,18 @@ stages:
 
           steps:
 
+          # ----------------------------------------
           # Download build artifact
+          # ----------------------------------------
+
           - download: current
             artifact: $(ARTIFACT_NAME)
 
 
+          # ----------------------------------------
           # Deploy application
+          # ----------------------------------------
+
           - bash: |
 
               set -e
@@ -134,10 +155,18 @@ stages:
               echo " ASP.NET Core Deployment"
               echo "===================================="
 
+
+              # ------------------------------------
+              # Variables
+              # ------------------------------------
+
               APP_DIR="$(APP_DIR)"
               ARTIFACT_DIR="$(Pipeline.Workspace)/$(ARTIFACT_NAME)"
               SERVICE_NAME="$(SERVICE_NAME)"
               APP_USER="$(APP_USER)"
+
+              TEMP_DIR="/tmp/MyDotNetApp"
+
 
               echo "Artifact:"
               echo "$ARTIFACT_DIR"
@@ -153,6 +182,7 @@ stages:
               # Create application directory
               # ------------------------------------
 
+              echo ""
               echo "Creating application directory..."
 
               sudo mkdir -p "$APP_DIR"
@@ -162,6 +192,7 @@ stages:
               # Stop application
               # ------------------------------------
 
+              echo ""
               echo "Stopping $SERVICE_NAME..."
 
               sudo systemctl stop "$SERVICE_NAME" || true
@@ -171,33 +202,169 @@ stages:
               # Clean old application
               # ------------------------------------
 
+              echo ""
               echo "Removing old files..."
 
               sudo rm -rf "$APP_DIR"/*
 
 
               # ------------------------------------
-              # Copy new application
+              # Find ZIP artifact
               # ------------------------------------
 
-              echo "Copying new files..."
+              echo ""
+              echo "Searching for application ZIP..."
 
-              sudo cp -r "$ARTIFACT_DIR"/* "$APP_DIR"/
+              ZIP_FILE=$(find "$ARTIFACT_DIR" \
+                -maxdepth 1 \
+                -type f \
+                -name "*.zip" \
+                | head -n 1)
+
+
+              if [ -z "$ZIP_FILE" ]; then
+
+                  echo "ERROR: No ZIP artifact found."
+
+                  echo "Artifact contents:"
+                  ls -lah "$ARTIFACT_DIR"
+
+                  exit 1
+
+              fi
+
+
+              echo "ZIP artifact found:"
+              echo "$ZIP_FILE"
+
+
+              # ------------------------------------
+              # Check unzip
+              # ------------------------------------
+
+              echo ""
+              echo "Checking unzip..."
+
+              if ! command -v unzip >/dev/null 2>&1; then
+
+                  echo "unzip is not installed."
+                  echo "Installing unzip..."
+
+                  sudo apt-get update
+                  sudo apt-get install -y unzip
+
+              fi
+
+
+              # ------------------------------------
+              # Create temporary directory
+              # ------------------------------------
+
+              echo ""
+              echo "Creating temporary extraction directory..."
+
+              sudo rm -rf "$TEMP_DIR"
+              sudo mkdir -p "$TEMP_DIR"
+
+
+              # ------------------------------------
+              # Extract application
+              # ------------------------------------
+
+              echo ""
+              echo "Extracting application..."
+
+              sudo unzip -o "$ZIP_FILE" -d "$TEMP_DIR"
+
+
+              # ------------------------------------
+              # Find published application
+              # ------------------------------------
+
+              echo ""
+              echo "Searching for MyDotNetApp.dll..."
+
+              DLL_FILE=$(find "$TEMP_DIR" \
+                -type f \
+                -name "MyDotNetApp.dll" \
+                | head -n 1)
+
+
+              if [ -z "$DLL_FILE" ]; then
+
+                  echo "ERROR: MyDotNetApp.dll was not found."
+
+                  echo "Extracted files:"
+                  find "$TEMP_DIR" -maxdepth 3 -type f
+
+                  exit 1
+
+              fi
+
+
+              echo "Application DLL found:"
+              echo "$DLL_FILE"
+
+
+              # ------------------------------------
+              # Find application root
+              # ------------------------------------
+
+              PUBLISH_DIR=$(dirname "$DLL_FILE")
+
+              echo ""
+              echo "Application source directory:"
+              echo "$PUBLISH_DIR"
+
+
+              # ------------------------------------
+              # Copy application
+              # ------------------------------------
+
+              echo ""
+              echo "Copying application files..."
+
+              sudo cp -r "$PUBLISH_DIR"/* "$APP_DIR"/
 
 
               # ------------------------------------
               # Set ownership
               # ------------------------------------
 
+              echo ""
               echo "Setting ownership..."
 
               sudo chown -R "$APP_USER:$APP_USER" "$APP_DIR"
 
 
               # ------------------------------------
+              # Verify application files
+              # ------------------------------------
+
+              echo ""
+              echo "Application files:"
+
+              ls -lah "$APP_DIR"
+
+
+              # ------------------------------------
+              # Verify DLL
+              # ------------------------------------
+
+              if [ ! -f "$APP_DIR/MyDotNetApp.dll" ]; then
+
+                  echo "ERROR: MyDotNetApp.dll was not copied."
+
+                  exit 1
+
+              fi
+
+
+              # ------------------------------------
               # Start application
               # ------------------------------------
 
+              echo ""
               echo "Starting $SERVICE_NAME..."
 
               sudo systemctl restart "$SERVICE_NAME"
@@ -207,6 +374,9 @@ stages:
               # Wait for application
               # ------------------------------------
 
+              echo ""
+              echo "Waiting for application..."
+
               sleep 5
 
 
@@ -214,6 +384,7 @@ stages:
               # Verify application
               # ------------------------------------
 
+              echo ""
               echo "Checking application..."
 
               if sudo systemctl is-active --quiet "$SERVICE_NAME"
@@ -229,10 +400,17 @@ stages:
                   echo " Deployment Failed"
                   echo "===================================="
 
+                  echo ""
                   echo "Service Status:"
-                  sudo systemctl status "$SERVICE_NAME" --no-pager
 
+                  sudo systemctl status \
+                    "$SERVICE_NAME" \
+                    --no-pager
+
+
+                  echo ""
                   echo "Application Logs:"
+
                   sudo journalctl \
                     -u "$SERVICE_NAME" \
                     -n 50 \
@@ -241,5 +419,21 @@ stages:
                   exit 1
 
               fi
+
+
+              # ------------------------------------
+              # Cleanup
+              # ------------------------------------
+
+              echo ""
+              echo "Cleaning temporary files..."
+
+              sudo rm -rf "$TEMP_DIR"
+
+
+              echo ""
+              echo "===================================="
+              echo " Deployment Completed Successfully"
+              echo "===================================="
 
             displayName: Deploy ASP.NET Core Application
