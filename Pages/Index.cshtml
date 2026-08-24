@@ -1,5 +1,10 @@
 ﻿@page
 @model IndexModel
+@using System.Net
+
+@{
+    var serverName = Dns.GetHostName();
+}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -93,6 +98,28 @@
             color: #6b7280;
             font-size: 14px;
             margin-bottom: 40px;
+        }
+
+        .server-highlight {
+            background: #eff6ff;
+            border: 2px solid #2563eb;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0 35px;
+        }
+
+        .server-highlight .label {
+            display: block;
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .server-highlight .server-name {
+            display: block;
+            color: #1d4ed8;
+            font-size: 26px;
+            font-weight: bold;
         }
 
         .section-title {
@@ -235,12 +262,23 @@
                 Deployment Test: Release-3 | VM Deployment
             </div>
 
+            <!-- Current Server -->
+            <div class="server-highlight">
+                <span class="label">Application served by</span>
+                <span class="server-name">@serverName</span>
+            </div>
+
             <!-- Current Environment -->
             <h2 class="section-title">
                 Current Environment
             </h2>
 
             <div class="info">
+
+                <div class="info-box">
+                    <strong>Server</strong>
+                    <span>@serverName</span>
+                </div>
 
                 <div class="info-box">
                     <strong>ASP.NET Core</strong>
@@ -268,8 +306,8 @@
                 </div>
 
                 <div class="info-box">
-                    <strong>Production</strong>
-                    <span>Azure Environment</span>
+                    <strong>Environment</strong>
+                    <span>Production</span>
                 </div>
 
             </div>
@@ -312,8 +350,8 @@ GitHub Repository
     ▼
 Azure DevOps Build Pipeline
     │
-    │ Build
     │ Restore
+    │ Build
     │ Publish
     ▼
 Build Artifact
@@ -325,17 +363,20 @@ Azure DevOps Release Pipeline
 Deployment Group
 DotNetApp-VMs
     │
-    ├──────────────────────┐
-    ▼                      ▼
-deployment-vm-01      deployment-vm-02
-    │                      │
-    │ systemd              │ systemd
-    ▼                      ▼
-ASP.NET Core           ASP.NET Core
-    │                      │
-    └──────────┬───────────┘
-               ▼
-          Port 5000
+    ├──────────────────────────┐
+    ▼                          ▼
+deployment-vm-01          deployment-vm-02
+    │                          │
+    │ systemd                 │ systemd
+    ▼                          ▼
+ASP.NET Core              ASP.NET Core
+    │                          │
+    ▼                          ▼
+Port 5000                 Port 5000
+    │                          │
+    └────────────┬─────────────┘
+                 ▼
+          Application Response
 </pre>
 
             </div>
@@ -409,6 +450,12 @@ ASP.NET Core           ASP.NET Core
                     on port 5000.
                 </div>
 
+                <div class="achievement">
+                    <strong>✓ Server Identification</strong><br />
+                    The application dynamically displays the hostname of the
+                    Azure VM serving the current request.
+                </div>
+
             </div>
 
             <!-- Deployment Flow -->
@@ -444,6 +491,8 @@ ASP.NET Core           ASP.NET Core
 12. ASP.NET Core application starts
         ↓
 13. Application becomes available on port 5000
+        ↓
+14. Browser displays the VM hostname
 </pre>
 
             </div>
