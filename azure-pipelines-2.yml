@@ -18,7 +18,7 @@ variables:
   PROJECTS: '**/*.csproj'
 
   # Artifact
-  ARTIFACT_NAME: 'drop'
+  ARTIFACT_NAME: 'MyDotNetApp'
 
   # Application settings
   APP_DIR: '/var/www/MyDotNetApp'
