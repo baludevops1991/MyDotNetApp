@@ -7,25 +7,32 @@ pool:
 steps:
 
 - task: UseDotNet@2
+  displayName: 'Install .NET 10 SDK'
   inputs:
     packageType: 'sdk'
-    version: '8.x'
+    version: '10.0.x'
+    includePreviewVersions: true
+
+- script: |
+    dotnet --version
+    dotnet --list-sdks
+  displayName: 'Verify .NET SDK'
 
 - task: DotNetCoreCLI@2
-  displayName: Restore
+  displayName: 'Restore'
   inputs:
     command: 'restore'
     projects: '**/*.csproj'
 
 - task: DotNetCoreCLI@2
-  displayName: Build
+  displayName: 'Build'
   inputs:
     command: 'build'
     projects: '**/*.csproj'
     arguments: '--configuration Release --no-restore'
 
 - task: DotNetCoreCLI@2
-  displayName: Publish
+  displayName: 'Publish'
   inputs:
     command: 'publish'
     projects: '**/*.csproj'
@@ -33,7 +40,7 @@ steps:
     zipAfterPublish: false
 
 - task: PublishBuildArtifacts@1
-  displayName: Publish Artifact
+  displayName: 'Publish Artifact'
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)/app'
     ArtifactName: 'drop'
