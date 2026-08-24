@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>My .NET App | Azure DevOps CI/CD</title>
+    <title>My .NET App | Azure DevOps Deployment Group</title>
 
     <style>
         * {
@@ -86,6 +86,12 @@
             padding: 10px 20px;
             border-radius: 25px;
             font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .version {
+            color: #6b7280;
+            font-size: 14px;
             margin-bottom: 40px;
         }
 
@@ -207,26 +213,27 @@
         <div class="badge">Azure DevOps CI/CD</div>
     </nav>
 
-
     <!-- Main Hero -->
     <main class="hero">
 
         <div class="card">
 
-            <div class="icon">☁️</div>
+            <div class="icon">🚀</div>
 
-            <h1>Hello from Azure!</h1>
+            <h1>Hello from Azure DevOps!</h1>
 
             <p class="subtitle">
-                This ASP.NET Core application is running as a Docker container
-                on <strong>Azure App Service</strong> and is deployed using
-                an automated <strong>Azure DevOps CI/CD pipeline</strong>.
+                This ASP.NET Core application has been deployed to Azure Virtual Machines
+                using an automated <strong>Azure DevOps Deployment Group</strong>.
             </p>
 
             <div class="status">
-                ✓ Application is Running
+                ✓ Deployment Group Deployment Successful
             </div>
 
+            <div class="version">
+                Deployment Test: Release-3 | VM Deployment
+            </div>
 
             <!-- Current Environment -->
             <h2 class="section-title">
@@ -246,18 +253,18 @@
                 </div>
 
                 <div class="info-box">
-                    <strong>Docker</strong>
-                    <span>Containerized Application</span>
+                    <strong>Azure VM</strong>
+                    <span>Deployment Target</span>
                 </div>
 
                 <div class="info-box">
-                    <strong>Azure App Service</strong>
-                    <span>Application Hosting</span>
+                    <strong>Port 5000</strong>
+                    <span>ASP.NET Core Application</span>
                 </div>
 
                 <div class="info-box">
-                    <strong>Port 8080</strong>
-                    <span>Container Application Port</span>
+                    <strong>Deployment Group</strong>
+                    <span>DotNetApp-VMs</span>
                 </div>
 
                 <div class="info-box">
@@ -266,7 +273,6 @@
                 </div>
 
             </div>
-
 
             <!-- Technologies -->
             <h2 class="section-title">
@@ -277,17 +283,16 @@
 
                 <span class="technology">.NET 10</span>
                 <span class="technology">ASP.NET Core</span>
-                <span class="technology">Docker</span>
                 <span class="technology">Azure DevOps</span>
-                <span class="technology">Azure Container Registry</span>
-                <span class="technology">Azure App Service</span>
-                <span class="technology">Managed Identity</span>
-                <span class="technology">AcrPull</span>
-                <span class="technology">Self-Hosted Agent</span>
                 <span class="technology">GitHub</span>
+                <span class="technology">Deployment Groups</span>
+                <span class="technology">Azure VM</span>
+                <span class="technology">Linux</span>
+                <span class="technology">systemd</span>
+                <span class="technology">Bash</span>
+                <span class="technology">CI/CD</span>
 
             </div>
-
 
             <!-- CI/CD Architecture -->
             <h2 class="section-title">
@@ -305,39 +310,35 @@ GitHub Repository
     │
     │ main branch
     ▼
-Azure DevOps Pipeline
+Azure DevOps Build Pipeline
+    │
+    │ Build
+    │ Restore
+    │ Publish
+    ▼
+Build Artifact
     │
     ▼
-Self-Hosted Agent
-azdo-agent-vm
+Azure DevOps Release Pipeline
     │
-    │ Docker build
     ▼
-Docker Image
-mydotnetapp:&lt;BuildId&gt;
+Deployment Group
+DotNetApp-VMs
     │
-    │ Docker push
-    ▼
-Azure Container Registry
-baludotnetacr.azurecr.io
-    │
-    │ AcrPull
-    │ Managed Identity
-    ▼
-Azure App Service
-baludotnetapp
-    │
-    │ Pull Docker Image
-    ▼
-Docker Container
-    │
-    │ :8080
-    ▼
-ASP.NET Core Application
+    ├──────────────────────┐
+    ▼                      ▼
+deployment-vm-01      deployment-vm-02
+    │                      │
+    │ systemd              │ systemd
+    ▼                      ▼
+ASP.NET Core           ASP.NET Core
+    │                      │
+    └──────────┬───────────┘
+               ▼
+          Port 5000
 </pre>
 
             </div>
-
 
             <!-- Learning / Achievements -->
             <h2 class="section-title">
@@ -347,85 +348,68 @@ ASP.NET Core Application
             <div class="achievements">
 
                 <div class="achievement">
-                    <strong>✓ Azure Virtual Machine</strong><br />
-                    Created an Azure VM, configured NGINX and deployed
-                    a Node.js application on port 3000.
+                    <strong>✓ Azure Virtual Machines</strong><br />
+                    Created two Azure Linux VMs as deployment targets for the
+                    ASP.NET Core application.
                 </div>
 
                 <div class="achievement">
-                    <strong>✓ Azure App Service</strong><br />
-                    Created an Azure App Service and deployed an ASP.NET Core
-                    application using Azure deployment methods.
+                    <strong>✓ Network Security</strong><br />
+                    Configured the required Azure networking and NSG rules
+                    for the deployment VMs.
                 </div>
 
                 <div class="achievement">
                     <strong>✓ GitHub Integration</strong><br />
-                    Connected the application source code with GitHub
-                    and worked with automated deployment.
+                    Connected the application source code with GitHub and
+                    configured the Azure DevOps build process.
                 </div>
 
                 <div class="achievement">
-                    <strong>✓ Azure DevOps CI/CD</strong><br />
-                    Created an Azure DevOps YAML pipeline to automate
-                    application build and deployment.
+                    <strong>✓ Azure DevOps Build Pipeline</strong><br />
+                    Created a build pipeline to restore, build and publish
+                    the ASP.NET Core application as an artifact.
                 </div>
 
                 <div class="achievement">
-                    <strong>✓ Docker Multi-Stage Build</strong><br />
-                    Created a Dockerfile using the .NET SDK build image
-                    and ASP.NET runtime image.
+                    <strong>✓ Deployment Group</strong><br />
+                    Created the <strong>DotNetApp-VMs</strong> deployment group
+                    and registered two Linux VM deployment targets.
                 </div>
 
                 <div class="achievement">
-                    <strong>✓ Azure Container Registry</strong><br />
-                    Created
-                    <strong>baludotnetacr.azurecr.io</strong>
-                    and pushed the Docker image to the
-                    <strong>mydotnetapp</strong> repository.
+                    <strong>✓ Deployment Group Agents</strong><br />
+                    Configured Azure DevOps deployment agents on
+                    <strong>deployment-vm-01</strong> and
+                    <strong>deployment-vm-02</strong>.
                 </div>
 
                 <div class="achievement">
-                    <strong>✓ Docker Image Versioning</strong><br />
-                    Docker images are tagged using the Azure DevOps
-                    Build ID, for example <strong>mydotnetapp:235</strong>,
-                    along with the <strong>latest</strong> tag.
+                    <strong>✓ .NET 10 Runtime</strong><br />
+                    Installed the required .NET 10 and ASP.NET Core 10
+                    runtimes on both deployment VMs.
                 </div>
 
                 <div class="achievement">
-                    <strong>✓ Managed Identity</strong><br />
-                    Configured the App Service to authenticate with ACR
-                    using its Managed Identity.
+                    <strong>✓ Linux systemd Service</strong><br />
+                    Configured <strong>mydotnetapp.service</strong> to manage
+                    the ASP.NET Core application as a Linux system service.
                 </div>
 
                 <div class="achievement">
-                    <strong>✓ AcrPull Permission</strong><br />
-                    Assigned the <strong>AcrPull</strong> role to the
-                    App Service Managed Identity so it can pull images
-                    from Azure Container Registry.
+                    <strong>✓ Classic Release Pipeline</strong><br />
+                    Created a Release pipeline to download the build artifact
+                    and deploy the application to both deployment VMs.
                 </div>
 
                 <div class="achievement">
-                    <strong>✓ Self-Hosted Azure DevOps Agent</strong><br />
-                    Created an Azure VM named
-                    <strong>azdo-agent-vm</strong> and configured it as
-                    a self-hosted Azure DevOps agent.
-                </div>
-
-                <div class="achievement">
-                    <strong>✓ Self-Hosted Agent Pool</strong><br />
-                    Configured the
-                    <strong>Azure-DevOps-SelfHosted</strong> agent pool
-                    and connected the VM successfully.
-                </div>
-
-                <div class="achievement">
-                    <strong>✓ Automated Container Deployment</strong><br />
-                    Azure DevOps builds the Docker image, pushes it to ACR,
-                    and deploys the selected image to Azure App Service.
+                    <strong>✓ Automated VM Deployment</strong><br />
+                    Azure DevOps deploys the published application files,
+                    restarts the systemd service and runs the application
+                    on port 5000.
                 </div>
 
             </div>
-
 
             <!-- Deployment Flow -->
             <h2 class="section-title">
@@ -441,25 +425,25 @@ ASP.NET Core Application
         ↓
 3. Code reaches GitHub main branch
         ↓
-4. Azure DevOps pipeline is triggered
+4. Azure DevOps Build Pipeline is triggered
         ↓
-5. Self-hosted agent receives the job
+5. Application is restored and built
         ↓
-6. Docker builds the application image
+6. Application is published
         ↓
-7. Docker pushes image to ACR
+7. Build artifact is created
         ↓
-8. App Service receives the new image configuration
+8. Release Pipeline receives the artifact
         ↓
-9. App Service Managed Identity authenticates to ACR
+9. Deployment Group targets both Azure VMs
         ↓
-10. AcrPull permission allows image download
+10. Artifact is copied to /var/www/MyDotNetApp
         ↓
-11. App Service pulls the Docker image
+11. systemd service is restarted
         ↓
-12. Container starts on port 8080
+12. ASP.NET Core application starts
         ↓
-13. ASP.NET Core application becomes available
+13. Application becomes available on port 5000
 </pre>
 
             </div>
@@ -468,9 +452,8 @@ ASP.NET Core Application
 
     </main>
 
-
     <footer>
-        © 2026 My .NET App · Azure DevOps · Docker · ACR · Azure App Service
+        © 2026 My .NET App · Azure DevOps · Deployment Groups · Azure VMs
     </footer>
 
 </body>
